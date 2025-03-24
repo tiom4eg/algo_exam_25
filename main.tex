@@ -9,8 +9,31 @@
 
 \maketitle
 
-\section*{Lorem ipsum}
+\tableofcontents
+\newpage
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+\section{Асимптотика}
+
+$g(n) \in O(f(n)) \implies \exists C > 0 \forall n : g(n) \leq C \cdot f(n)$
+
+$g(n) \in o(f(n)) \implies \forall C > 0 \exists N : \forall n > N : g(n) < C \cdot f(n)$
+
+$g(n) \in \Omega(f(n)) \implies \exists C > 0 \forall n : g(n) \geq C \cdot f(n)$
+
+$g(n) \in \omega(f(n)) \implies \forall C > 0 \exists N : \forall n > N : g(n) > C \cdot f(n)$
+
+$g(n) \in \Theta(f(n)) \implies g(n) \in \Omega(f(n)) \land g(n) \in O(f(n))$
+
+Амортизированная - достигается в среднем по всем операциям, real-time - гарантированно достигается на каждой операции, ожидаемая - достигается по матожиданию
+
+\section{Теория вероятностей}
+
+Случайные величины $A_1, \dots, A_n$ независимы, если для всех подмножеств $\{A_{i_k}\}$ выполняется $P(\bigcap \limits_{j=1}^{k} A_{i_j}) = \prod \limits_{j=1}^{k} P(A_{i_j})$
+
+Матожидание: $\mathbb{E}[X] = \sum \limits_{\omega} X(\omega) \cdot p(\omega), \ \mathbb{E}[aX + bY] = \sum \limits_{\omega} (a \cdot X(\omega) + b \cdot Y(\omega)) \cdot p(\omega) = \mathbb{E}[aX] + \mathbb{E}[bY] = a \mathbb{E}[X] + b \mathbb{E}[Y], \ \mathbb{E}[XY] = \sum \limits_{\omega} X(\omega) Y(\omega) p_X(\omega) p_Y(\omega)$ (для независимых $X, Y$) $= \sum \limits_{\omega} X(\omega) p_X(\omega) \cdot \sum \limits_{\omega} Y(\omega) p_Y(\omega) = \mathbb{E}[X] \mathbb{E}[Y]$
+
+Дисперсия: $\mathbb{D}[X] = \mathbb{E}[X - \mathbb{E}[X]]^2 = \mathbb{E}[X^2 - 2X\mathbb{E}[X] + \mathbb{E}[X]^2] = \mathbb{E}[X^2] + \mathbb{E}[X]^2 - 2\mathbb{E}[X]\mathbb{E}[X] = \mathbb{E}[X^2] - \mathbb{E}[X]^2$, линейность примерно так же расписывается
+
+\pic{0.3}{static/markov_chebyshev.png}
 
 \end{document}
