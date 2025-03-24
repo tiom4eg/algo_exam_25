@@ -1,0 +1,68 @@
+\usepackage{cmap}
+\usepackage[T2A]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[russian, english]{babel}
+\usepackage{hyphenat}
+\usepackage{mathtools}
+\usepackage{dsfont}
+\usepackage{graphicx}
+\usepackage{amsfonts, amsmath, amssymb, amsthm}
+\usepackage{pgf, tikz}
+\usepackage{multido}
+\usepackage{ifthen}
+\usepackage{xstring}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{comment}
+\usepackage{xparse}
+\usepackage{epigraph}
+\usepackage{pgfpages}
+\usepackage{indentfirst}
+\usepackage{epsfig}
+\usepackage{wrapfig}
+\usepackage{bbding}
+\usepackage{ulem}
+\usepackage{tcolorbox}
+\usepackage{fancyhdr}
+\usepackage{listings}
+
+\fancyhf{}
+
+\pagestyle{empty}
+
+\usepackage[left=1.5cm,right=1.5cm,top=1.5cm,bottom=1.5cm]{geometry}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=cyan,
+    filecolor=magenta,      
+    urlcolor=blue,
+}
+
+\newcommand{\T}[1]{ \textbf{#1} }
+\renewcommand{\S}{ \hspace{0.2cm} }
+\newcommand{\nn}{ \mathbb{N} }
+\newcommand{\zz}{ \mathbb{Z} }
+\newcommand{\rr}{ \mathbb{R} }
+\newcommand{\qq}{ \mathbb{Q} }
+\newcommand{\ii}{ \mathbb{I} }
+\newcommand{\bb}{ \mathbb{B} }
+\newcommand*{\divby}{\mathrel{\rotatebox{90}{$\hskip-1pt.{}.{}.$}}}
+\newcommand{\I}{\displaystyle \int}
+\newcommand{\cut}{ 
+  \noindent
+  \raisebox{-2.8pt}[0pt][0.75\baselineskip]
+  \unskip{\tiny\dotfill}
+}
+\newcommand{\pic}[2]{
+    \begin{figure}[h]
+        \centering
+        \includegraphics[scale=#1]{#2}
+    \end{figure}
+}
+\newcommand{\Sec}[1]{ \section*{#1} }
+\renewcommand*\env@matrix[1][*\c@MaxMatrixCols c]{%
+  \hskip -\arraycolsep
+  \let\@ifnextchar\new@ifnextchar
+  \array{#1}
+}
