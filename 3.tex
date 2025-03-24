@@ -1,0 +1,5 @@
+\section{Quicksort}
+
+Доказательство асимптотики при случайном выборе разделяющей точки (будем считать, что все элементы уникальны): пусть $T_n$ - асимптотика для $n$. $T_n = (n - 1) + \frac{1}{n} \sum \limits_{i=0}^{n-1} T_i + T_{n-1-i} = (n - 1) + \frac{2}{n} \sum \limits_{i=0}^{n-1} T_i \implies nT_n = n(n - 1) + 2 \sum \limits_{i=0}^{n-1} T_i$
+
+$nT_n - (n-1)T_{n-1} = n(n - 1) + 2 \sum \limits_{i=0}^{n-1} T_i - ((n - 1)(n - 2) + 2 \sum \limits_{i=0}^{n-2} T_i) = n(n-1) - (n-1)(n-2) + 2T_{n-1} \implies nT_n = (n+1)T_{n-1} + 2n - 2 \implies \frac{T_n}{n+1} = \frac{T_{n-1}}{n} + \frac{2}{n+1} - \frac{2}{n(n+1)} \leq \frac{T_{n-1}}{n} + \frac{2}{n+1} = \frac{T_{n-2}}{n-1} + \frac{2}{n+1} + \frac{2}{n} - \frac{2}{n(n-1)} \leq \dots \leq \frac{T_1}{2} + \sum \limits_{i=1}^{n+1} \frac{2}{i} = O(n \log n)$

@@ -1,0 +1,13 @@
+\section{Асимптотика}
+
+$g(n) \in O(f(n)) \implies \exists C > 0 \forall n : g(n) \leq C \cdot f(n)$
+
+$g(n) \in o(f(n)) \implies \forall C > 0 \exists N : \forall n > N : g(n) < C \cdot f(n)$
+
+$g(n) \in \Omega(f(n)) \implies \exists C > 0 \forall n : g(n) \geq C \cdot f(n)$
+
+$g(n) \in \omega(f(n)) \implies \forall C > 0 \exists N : \forall n > N : g(n) > C \cdot f(n)$
+
+$g(n) \in \Theta(f(n)) \implies g(n) \in \Omega(f(n)) \land g(n) \in O(f(n))$
+
+Амортизированная - достигается в среднем по всем операциям, real-time - гарантированно достигается на каждой операции, ожидаемая - достигается по матожиданию
