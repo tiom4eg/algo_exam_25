@@ -1,0 +1,43 @@
+\section{Обратное преобразование Фурье}
+
+
+Для обращения преобразования достаточно обратить вышеописанный алгоритмы.
+
+
+Рассмотрим рекурсивный вызов вышеописанного алгоритма
+\begin{itemize}
+    \item Если $n = 1$, то обращать нечего, так как никаких вычислений не выполнялось
+    \item Если $n \neq 1$, то $n = 2k$ для некоторого натурального $k$. Заметим, что значение $P(x) \bmod (x^{2k} - c)$
+          однозначно определяется значениями $P_1(x) = P(x) \bmod (x^k - \sqrt{c})$ и $P_2(x) = P(x) \bmod (x^k + \sqrt{c})$, так как многочлены $x^k - \sqrt{c}$ и $x^k + \sqrt{c}$ взаимно просты.
+
+          Вспомним формулу для явного нахождения решения системы сравнений из китайской теоремы об остатках:
+          \begin{gather}
+              \begin{cases}
+                  X \equiv A \quad (\text{mod } C) \\
+                  X \equiv B \quad (\text{mod } D) \\
+              \end{cases} \\
+              %   \implies
+              X \equiv_{CD}
+              A \cdot \text{inv}(D, C) \cdot D +
+              B \cdot \text{inv}(C, D) \cdot C
+          \end{gather}
+          где $\text{inv}(x, y)$ -- обратное к $x$ по модулю $y$
+
+          Подставим $X = P(x),\ A = P_1(x),\ B = P_2(x),\ C = x^k - \sqrt{c},\ D = x^k + \sqrt{c}$
+
+          Тогда $\text{inv}(D, C) = \text{inv}(D \bmod C, C) = \text{inv}(2\sqrt{c}, C) = \frac{1}{2\sqrt{c}}$ и $\text{inv}(C, D) = -\frac{1}{2\sqrt{c}}$
+
+          Значит
+          \begin{gather}
+              P(x) =
+              P_1(x) \cdot \frac{1}{2\sqrt{c}} \left(x^k + \sqrt{c} \right) -
+              P_2(x) \cdot \frac{1}{2\sqrt{c}} \left(x^k - \sqrt{c} \right) =
+              \\
+              \frac{1}{2} \left(
+              P_1(x) \cdot  \left(1 + x^k \cdot \frac{1}{\sqrt{c}} \right) +
+              P_2(x) \cdot  \left(1 - x^k \cdot \frac{1}{\sqrt{c}} \right)
+              \right)
+          \end{gather}
+
+          что позволяет вычислить $P(x) \bmod x^n - c$ за $O(n)$
+\end{itemize}

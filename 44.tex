@@ -1,0 +1,114 @@
+\section{Метод Ньютона}
+
+% \renewcommand*{\arraystretch}{1.5}
+% \addtolength{\jot}{0.1em}
+
+Ищем корень функции $f(x)$. Пусть $x_0$ -- начальное приближение.
+Вычислим $x_{n + 1}$ как $x_{x + 1} = x_n - \frac{f(x_n)}{f'(x_n)}$.
+Геометрический смысл: $x_{n + 1}$ -- точка пересечения касательной к графику $f(x)$ в точке $x$ с осью $Ox$
+
+\quad
+
+\subsection{Оценка сходимости}
+
+Пусть $f$ имеет корень в точке $a$, пусть $d_n = x_n - a$ (неточность приближения).
+Разложим $f(x)$ в точке $x_n$ в многочлен Тейлора первой степени с остаточным членом в форме Лагранжа:
+
+\begin{equation}
+    f(x) = f(x_n) + f'(x_n) \left(x - x_n\right) + \frac{f''(c_n)}{2} (x - x_n)^2 \qquad c_n \in (x, x_n) \label{taylor1}
+\end{equation}
+
+Подставим $x = a$ в тождество % \ref{taylor1}
+
+\begin{equation}
+    f(a) = 0 = f(x_n) + f'(x_n) (a - x_n) + \frac{f''(c_n)}{2} (a - x_n)^2
+\end{equation}
+
+Разделим на $f'(x_n)$
+
+\begin{equation}
+    0 = \frac{f(x_n)}{f'(x_n)} + (a - x_n) + \frac{f''(c_n)}{2f'(x_n)} (a - x_n)^2
+\end{equation}
+
+Перенесём $ \frac{f(x_n)}{f'(x_n)} + (a - x_n)$ налево
+
+\begin{equation}
+    x_{n + 1} - a = (x_n - a) - \frac{f(x_n)}{f'(x_n)} = \frac{f''(c_n)}{2f'(x_n)} (a - x_n)^2
+\end{equation}
+
+Значит
+\begin{equation}
+    d_{n + 1} = d^2_n \cdot \frac{f''(c_n)}{2f'(x_n)} \label{nwt_error}
+    % \qquad e_n = c_n - a \in (0, d_n)
+\end{equation}
+
+Если значение $\frac{f''(c_n)}{2f'(x_n)}$ ограничено (константой, не зависящей от $n$), то имеем место квадратичная сходимость
+
+Пусть $f(x)$ имеет корень в точке $a$, дважды непрерывно дифференцируема в окрестности $a$ и $f'(a) \neq 0$.
+Тогда в некоторой окрестности $a$ значение $\frac{f''(c_n)}{2f'(x_n)}$ ограничено, значит имеет место квадратичная сходимость
+
+\subsection{Пример для $1/a$}
+
+\begin{gather}
+    f(x) = 1/x - a \qquad f(1/a) = 0 \\
+    f'(x) = -\frac{1}{x^2} \qquad f''(x) = \frac{2}{x^3} \\
+    x_{n + 1} = x_n - \frac{1/x_n - a}{-1/x_n^2} = x_n + \left(x_n - a \cdot x_n^2\right) = x_n (2 - ax_n) \\
+\end{gather}
+
+
+\begin{gather}
+    d_{n + 1} = d_n^2 \cdot \frac{f''(c_n)}{2f'(x_n)} \approx d_n^2 \cdot \frac{f''(1/a)}{2f'(1/a)} = -d_n^2 \cdot a
+\end{gather}
+
+
+\begin{center}
+    \begin{tikzpicture}
+        \draw[scale=0.7, ->] (-4, 0) -- (8.4, 0)  node[right] {$x$};
+        \draw[scale=0.7, ->] (0, -4) -- (0, 6.4) node[above] {$y$};
+        \draw[scale=0.7,  domain=0.15:7, smooth, variable=\x, blue] plot[samples=200] ({\x}, {1/\x - 0.6}) node[right] {$1/x - a$};
+        \draw[scale=0.7,  domain=-0.3:-4, smooth, variable=\x, blue] plot[samples=200] ({\x}, {1/\x - 0.6});
+        \draw[scale=0.7,  domain=-2:3, smooth, variable=\x, red] plot[samples=200] ({\x}, {\x * -1.5625 + 2.5  - 0.6});
+        % \draw[scale=0.5,  domain=-1:5, smooth, variable=\y, green] plot[samples=1000] ({0.8}, {\y});
+    \end{tikzpicture}
+\end{center}
+
+Из-за выпуклости $f(x)$ на $(0, +\infty)$ при $x_0 \in (0, 1/a)$ последовательность $\left\{x_n\right\}$ сойдётся к $1/a$
+(так как при $x_n \in (0, 1/a)$ выполнено $x_n \le x_{n + 1} \le 1/a$, так как касательная пересекает $Ox$ строго правее $x_n$, но левее $1/a$ из-за выпуклости).
+При $x_0 \notin (0, 1/a]$ последовательность $\left\{x_n\right\}$ может как и сойтись к $1/a$, как и разойтись к $-\infty$
+
+\quad
+
+$x_0$ стоит брать чуть меньшим $1/a$
+
+\subsection{Пример для $\sqrt[4]{a}$}
+
+\begin{gather}
+    f(x) = x^4 - a \qquad f(\sqrt[4]{a}) = 0 \\
+    f'(x) = 4x^3 \qquad f''(x) = 12x^2 \\
+    x_{n + 1} = x_n - \frac{x_n^4 - a}{4x_n^3} = x_n - \left(\frac{1}{4} \cdot x_n - \frac{a}{4x_n^3}\right) = \frac{3}{4} \cdot x_n + \frac{a}{4 x_n^3} \\
+\end{gather}
+
+
+\begin{gather}
+    d_{n + 1} = d_n^2 \cdot \frac{f''(c_n)}{2f'(x_n)} \approx d_n^2 \cdot \frac{f''(\sqrt[4]{a})}{2f'(\sqrt[4]{a})} = d_n^2 \cdot \frac{3}{2 \sqrt[4]{a}}
+\end{gather}
+
+\begin{center}
+    \begin{tikzpicture}
+        \draw[scale=4, ->] (-1.1, 0) -- (1.1, 0)  node[right] {$x$};
+        \draw[scale=4, ->] (0, -1) -- (0, 1) node[above] {$y$};
+        \draw[scale=4,  domain=-1.0:1.0, smooth, variable=\x, blue] plot[samples=200] ({\x}, {\x * \x * \x * \x - 0.2}) node[right] {$x^4 - a$};
+        % \draw[scale=0.5,  domain=-1:5, smooth, variable=\y, green] plot[samples=1000] ({0.8}, {\y});
+    \end{tikzpicture}
+\end{center}
+
+Из-за выпуклости $f(x)$ при $x_0 \in \left(\sqrt[4]{a}, +\infty\right)$ последовательность $\{x_n\}$ сойдётся к $\sqrt[4]{a}$ по аналогичным причинам.
+При $x_0 \in (-\infty, -\sqrt[4]{a})$ последовательность сойдётся к $-\sqrt[4]{a}$
+% При $x_0 \in (-\sqrt[4]{a}, \sqrt[4]{a})$ 
+
+\quad
+
+$x_0$ стоит брать чуть большим $\sqrt[4]{a}$
+
+
+
