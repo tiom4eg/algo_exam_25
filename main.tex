@@ -1,5 +1,6 @@
 \documentclass{article}
 \usepackage{style}
+\usepackage{pgfplots}
 
 \title{Экзамен по АиСД 2024/25}
 \author{@tiom4eg, @alekseyka2006 $\dots$}
@@ -12,8 +13,13 @@
 \tableofcontents
 \newpage
 
-\foreach \i in {1, 2, 3, 4} {
-    \input{\i}
-}
+
+
+\foreach \i in {1, 2, ..., 100} {
+        \edef\FileName{\i}%
+        \IfFileExists{\FileName}{
+            \input{\FileName}
+        }
+    }
 
 \end{document}
