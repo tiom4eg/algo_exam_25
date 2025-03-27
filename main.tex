@@ -16,7 +16,7 @@
 
 
 \foreach \i in {1, 2, ..., 100} {
-        \edef\FileName{\i}%
+        \edef\FileName{content/\i}%
         \IfFileExists{\FileName}{
             \input{\FileName}
         }
