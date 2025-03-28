@@ -9,161 +9,178 @@ E(\text{глубина }v_a) = \sum_{b = 1}^n E(I_b) \leq \sum_{b = 1}^n \frac{1
 Так как все операции работают с ДД за $O(\text{глубина какой-то вершины})$, получаем, что хотелось.
 
 \subsection{Splay}
-\newcommand{\sz}{\operatorname{sz}}
-
 
 Повороты выглядят так:
-\begin{figure}[htbp]
-    \centering
-    \begin{tikzpicture}[
-        level distance=15mm,
-        sibling distance=15mm,
-        every node/.style={circle, draw, minimum size=6mm, font=\small},
-        scale=0.8
-    ]
-      % Before tree
-      \node (x) {$x$}
-        child { node (y) {$v$} 
-          child { node {A} }
-          child { node {B} }
-        }
-        child { node {C} };
-      
-      % After tree
-      \begin{scope}[xshift=4cm]
-        \node (y) {$v$}
-          child { node {A} }
-          child { node (x) {$x$}
-            child { node {B} }
-            child { node {C} }
-          };
-      \end{scope}
-      
-      % Arrow between trees
-      \draw[->, thick] (1.5,-0.5) -- (2.5,-0.5);
-    \end{tikzpicture}
-    \captionsetup{labelformat=empty}
-    \caption{\texttt{zig} (право)}
-\end{figure}
+\tikzset{
+    node/.style = {circle, draw, minimum size=8mm},
+    subtree/.style = {font=\small, inner sep=1pt},
+    edge/.style = {draw, -latex}
+}
 
-\begin{figure}[htbp]
-    \centering
-    \begin{tikzpicture}[
-        level distance=15mm,
-        sibling distance=15mm,
-        every node/.style={circle, draw, minimum size=6mm, font=\small},
-        scale=0.8
-    ]
-        % Before tree
-        \node (z) {$y$}
-        child { node (y) {$x$}
-            child { node (x) {$v$}
-            child { node {A} }
-            child { node {B} }
-            }
-            child { node {C} }
-        }
-        child { node {D} };
+\begin{figure}[h!]
+\centering
+\begin{tikzpicture}[scale=0.8, every node/.style={transform shape}]
+
+\begin{scope}[local bounding box=before]
+    \node[node] (v) at (0,0) {$x$};
+    \node[node] (x) at (-1,-1) {$v$};
+    \node[subtree] (A) at (-1.5,-2) {$A$};
+    \node[subtree] (B) at (-0.5,-2) {$B$};
+    \node[subtree] (C) at (1,-1) {$C$};
     
-        % After tree
-        \begin{scope}[xshift=6cm]
-        \node (x) {$v$}
-            child { node {A} }
-            child { node (y) {$x$}
-            child { node {B} }
-            child { node (z) {$y$}
-                child { node {C} }
-                child { node {D} }
-            }
-            };
-        \end{scope}
-        
-        % Arrow between trees
-        \draw[->, thick] (3,-0.5) -- (4,-0.5);
-    \end{tikzpicture}
-    \captionsetup{labelformat=empty}
-    \caption{\texttt{zig-zig} (право-право)}
+    \draw[edge] (v) -- (x);
+    \draw[edge] (x) -- (A);
+    \draw[edge] (x) -- (B);
+    \draw[edge] (v) -- (C);
+\end{scope}
+
+\draw[->, thick] (2,-1) -- node[above] {\texttt{zig}} ++(2,0);
+
+\begin{scope}[xshift=6cm, local bounding box=after]
+  \node[node] (x) at (0,0) {$v$};
+  \node[subtree] (A) at (-1,-1) {$A$};
+  \node[node] (v) at (1,-1) {$x$};
+  \node[subtree] (B) at (0.5,-2) {$B$};
+  \node[subtree] (C) at (1.5,-2) {$C$};
+  
+  \draw[edge] (x) -- (A);
+  \draw[edge] (x) -- (v);
+  \draw[edge] (v) -- (B);
+  \draw[edge] (v) -- (C);
+\end{scope}
+
+\end{tikzpicture}
+\caption{Операция \texttt{zig}: одиночный поворот}
 \end{figure}
 
-\begin{figure}[htbp]
-    \centering
-    \begin{tikzpicture}[
-        level distance=15mm,
-        sibling distance=25mm,
-        every node/.style={circle, draw, minimum size=6mm, font=\small},
-        scale=0.8
-    ]
-      % Исходное дерево
-      \node (z) {$y$}
-        child { node (y) {$x$} [sibling distance=15mm]
-          child { node {A} }
-          child { node (x) {$v$}
-            child { node {B} }
-            child { node {C} }
-          }
-        }
-        child { node {D} };
+\begin{figure}[h!]
+\centering
+\begin{tikzpicture}[scale=0.8, every node/.style={transform shape}]
+
+\begin{scope}[local bounding box=before]
+    \node[node] (v) at (0,0) {$x$};
+    \node[node] (p) at (-1,-1) {$y$};
+    \node[node] (g) at (-2,-2) {$v$};
+    \node[subtree] (A) at (-2.5,-3) {$A$};
+    \node[subtree] (B) at (-1.5,-3) {$B$};
+    \node[subtree] (C) at (-0.5,-2) {$C$};
+    \node[subtree] (D) at (1,-1) {$D$};
     
-      % Исправленное правое дерево
-      \begin{scope}[xshift=6cm]
-        \node (x) {$v$}
-          child { node (y) {$x$} [sibling distance=15mm]
-            child { node {A} }
-            child { node {B} }
-          }
-          child { node (z) {$y$} [sibling distance=15mm] % <-- Изменено здесь
-            child { node {C} }
-            child { node {D} }
-          };
-      \end{scope}
-      
-      % Стрелка между деревьями
-      \draw[->, thick] (3,-0.5) -- (4,-0.5);
-    \end{tikzpicture}
-    \caption{\texttt{zig-zag} (право-лево)}
+    \draw[edge] (v) -- (p);
+    \draw[edge] (p) -- (g);
+    \draw[edge] (g) -- (A);
+    \draw[edge] (g) -- (B);
+    \draw[edge] (p) -- (C);
+    \draw[edge] (v) -- (D);
+\end{scope}
+
+\draw[->, thick] (2,-1.5) -- node[above] {\texttt{zig-zig}} ++(2,0);
+
+\begin{scope}[xshift=6cm, local bounding box=after]
+    \node[node] (g) at (0,0) {$v$};
+    \node[subtree] (A) at (-1,-1) {$A$};
+    \node[node] (p) at (1,-1) {$y$};
+    \node[subtree] (B) at (0.5,-2) {$B$};
+    \node[node] (v) at (1.5,-2) {$x$};
+    \node[subtree] (C) at (1,-3) {$C$};
+    \node[subtree] (D) at (2,-3) {$D$};
+    
+    \draw[edge] (g) -- (A);
+    \draw[edge] (g) -- (p);
+    \draw[edge] (p) -- (B);
+    \draw[edge] (p) -- (v);
+    \draw[edge] (v) -- (C);
+    \draw[edge] (v) -- (D);
+\end{scope}
+
+\end{tikzpicture}
+\caption{Операция \texttt{zig-zig}: двойной поворот (одинаковое направление)}
+\end{figure}
+
+\begin{figure}[h!]
+\centering
+\begin{tikzpicture}[scale=0.8, every node/.style={transform shape}]
+
+\begin{scope}[local bounding box=before]
+    \node[node] (g) at (0,0) {$x$};
+    \node[subtree] (A) at (1,-1) {$D$};
+    \node[node] (p) at (-1,-1) {$y$};
+    \node[node] (v) at (-0.5,-2) {$v$};
+    \node[subtree] (B) at (0,-3) {$C$};
+    \node[subtree] (C) at (-1,-3) {$B$};
+    \node[subtree] (D) at (-1.5,-2) {$A$};
+    
+    \draw[edge] (g) -- (A);
+    \draw[edge] (g) -- (p);
+    \draw[edge] (p) -- (v);
+    \draw[edge] (v) -- (B);
+    \draw[edge] (v) -- (C);
+    \draw[edge] (p) -- (D);
+\end{scope}
+
+\draw[->, thick] (2,-1.5) -- node[above] {\texttt{zig-zag}} ++(2,0);
+
+\begin{scope}[xshift=6cm, local bounding box=after]
+    \node[node] (v) at (0,0) {$v$};
+    \node[node] (g) at (-1,-1) {$y$};
+    \node[subtree] (A) at (-1.5,-2) {$A$};
+    \node[subtree] (B) at (-0.5,-2) {$B$};
+    \node[node] (p) at (1,-1) {$x$};
+    \node[subtree] (C) at (0.5,-2) {$C$};
+    \node[subtree] (D) at (1.5,-2) {$D$};
+    
+    \draw[edge] (v) -- (g);
+    \draw[edge] (g) -- (A);
+    \draw[edge] (g) -- (B);
+    \draw[edge] (v) -- (p);
+    \draw[edge] (p) -- (C);
+    \draw[edge] (p) -- (D);
+\end{scope}
+
+\end{tikzpicture}
+\caption{Операция \texttt{zig-zag}: двойной поворот (разное направление)}
 \end{figure}
 
 
-Докажем, что амортизированное время работы \texttt{splay}($v$) равно $O(\log n)$. Сделаем это методом потенциалов. Пусть $r(v) = \log \sz(v)$, где $\sz(v)$ --- размер поддерева вершины $v$ (здесь и везде далее под $\log$ понимается двоичный логарифм). Потенциал $\Phi = \sum\limits_{v} r(v)$. Очевидно, что $0 \leq \Phi \leq n \log_2 n$.
+Докажем, что амортизированное время работы \texttt{splay}($v$) равно $O(\log n)$. Сделаем это методом потенциалов. Пусть $r(v) = \log \operatorname{sz}(v)$, где $\operatorname{sz}(v)$ --- размер поддерева вершины $v$ (здесь и везде далее под $\log$ понимается двоичный логарифм). Потенциал $\Phi = \sum\limits_{v} r(v)$. Очевидно, что $0 \leq \Phi \leq n \log n$.
 
 \begin{statement}
 $t_i + \Delta \Phi \leq 1 + 3(r(root) - r(v))$, где $t_i$ --- время работы.
 \end{statement}
 \underline{Доказательство}: сначала отдельно оценим изменение потенциала при выполнении одного \texttt{zig}, \texttt{zig-zig} или \texttt{zig-zag}
 \begin{enumerate}
-    \item \texttt{zig}. Пусть без ограничения общности делали правый поворот (как на рисунке). Хотим доказать, что $t_\texttt{zig} + \Delta \Phi \leq 1 + 3(r(x) - r(v))$. Повороты делаются за $O(1)$, поэтому будем считать $t_\texttt{zig} = 1$. Значит, нужно нужно доказать, что 
-    \[ 1 + \cancel{\log(A + B + C + 2)} + \log(B + C + 1) - \cancel{\log(A + B + C + 2)} - \bcancel{\log(A + B + 1)} \leq 
-    \] \[ \leq 1 + 3 \log(A + B + C + 2) - \bcancel{3\log(A + B + 1)} \]
-    \[ \impliedby \log(B + C + 1) + 2 \log(A + B + 1) \leq 3 \log(A + B + C + 2) \]
+\item \texttt{zig}. Пусть без ограничения общности в $v$ спустились влево (как на рисунке). Хотим доказать, что $t_\texttt{zig} + \Delta \Phi \leq 1 + 3(r(x) - r(v))$. Повороты делаются за $O(1)$, поэтому будем считать $t_\texttt{zig} = 1$. Значит, нужно нужно доказать, что 
+\[ 1 + \cancel{\log(A + B + C + 2)} + \log(B + C + 1) - \cancel{\log(A + B + C + 2)} - \bcancel{\log(A + B + 1)} \leq 
+\] \[ \leq 1 + 3 \log(A + B + C + 2) - \bcancel{3\log(A + B + 1)} \]
+\[ \impliedby \log(B + C + 1) + 2 \log(A + B + 1) \leq 3 \log(A + B + C + 2) \]
 
 
-    А последнее, очевидно, верно.
+А последнее, очевидно, верно.
 
-    \item \texttt{zig-zig}. Пусть без ограничения общности делали правый-правый поворты (как на рисунке). Хотим доказать, что $t_\texttt{zig-zig} + \Delta \Phi \leq 3(r(y) - r(v))$, то есть
-    \[ 1 + \cancel{\log(A + B + C + D + 3)} + \log(B + C + D + 2) + \log(C + D + 1) - \cancel{\log(A + B + C + D + 3)} - \]
-    \[ -\log(A + B + C + 2) - \bcancel{\log(A + B + 1)} \leq 3\log(A + B + C + D + 3) - \bcancel{3\log(A + B + 1)} \]
-    \[ \impliedby 1 + \cancel{\log(B + C + D + 2)} + \log(C + D + 1) + \bcancel{2 \log(A + B + 1)} \leq \cancel{3\log(A + B + C + D + 3)} + \bcancel{\log(A + B + C + 2)}\]
-    \[ \impliedby 1 + \log(C + D + 1) + \log(A + B + 1) \leq 2\log(A + B + C + D + 3) \]
+\item \texttt{zig-zig}. Пусть без ограничения общности в $v$ спустились влево-влево (как на рисунке). Хотим доказать, что $t_\texttt{zig-zig} + \Delta \Phi \leq 3(r(x) - r(v))$, то есть
+\[ 1 + \cancel{\log(A + B + C + D + 3)} + \log(B + C + D + 2) + \log(C + D + 1) - \cancel{\log(A + B + C + D + 3)} - \]
+\[ -\log(A + B + C + 2) - \bcancel{\log(A + B + 1)} \leq 3\log(A + B + C + D + 3) - \bcancel{3\log(A + B + 1)} \]
+\[ \impliedby 1 + \cancel{\log(B + C + D + 2)} + \log(C + D + 1) + \bcancel{2 \log(A + B + 1)} \leq \cancel{3\log(A + B + C + D + 3)} + \bcancel{\log(A + B + C + 2)}\]
+\[ \impliedby 1 + \log(C + D + 1) + \log(A + B + 1) \leq 2\log(A + B + C + D + 3) \]
 
-    Пусть $a = C + D + 1, b = A + B + 1$. Докажем, что $1 + \log a + \log b \leq 2\log (a + b)$, из этого будет следовать требуемое. 
-    \[ 1 + \log a + \log b \leq 2 \log(a + b) \]
-    \[ 1 \leq \log((a + b)^2) - \log ab \]
-    \[ 1 \leq \log \frac{a^2 + 2ab + b^2}{ab} \]
-    \[ 1 \leq \log (2 + ...) \]
+Пусть $a = C + D + 1, b = A + B + 1$. Докажем, что $1 + \log a + \log b \leq 2\log (a + b)$, из этого будет следовать требуемое. 
+\[ 1 + \log a + \log b \leq 2 \log(a + b) \]
+\[ 1 \leq \log((a + b)^2) - \log ab \]
+\[ 1 \leq \log \frac{a^2 + 2ab + b^2}{ab} \]
+\[ 1 \leq \log (2 + ...) \]
 
-    Последнее верно, так как логирфм двоичный и $... \geq 0$.
+Последнее верно, так как логирфм двоичный и $... \geq 0$.
 
-    \item \texttt{zig-zag}. Пусть без ограничения общности делали правый-левый поворты (как на рисунке). Хотим доказать, что $t_\texttt{zig-zag} + \Delta \Phi \leq 3(r(y) - r(v))$, то есть
-    \[ 1 + \cancel{\log(A + B + C + D + 3)} + \log(A + B + 1) + \log(C + D + 1) - \cancel{\log(A + B + C + D + 3)} - 
-    \] \[  - \log(A + B + C + 2) - \bcancel{\log(B + C + 1)} \leq 3\log(A + B + C + D + 3) - \bcancel{3\log(B + C + 1)} \]
-    \[ \impliedby 1 + \log(A + B + 1) + \log(C + D + 1) + \xcancel{2 \log(B + C + 1)} \leq \cancel{3\log(A + B + C + D + 3)} + \bcancel{\log(A + B + C + 2)} \]
-    \[ \impliedby 1 + \log(A + B + 1) + \log(C + D + 1) \leq 2\log(A + B + C + D + 3) \]
+\item \texttt{zig-zag}. Пусть без ограничения общности в $v$ спустились влево-вправо (как на рисунке). Хотим доказать, что $t_\texttt{zig-zag} + \Delta \Phi \leq 3(r(x) - r(v))$, то есть
+\[ 1 + \cancel{\log(A + B + C + D + 3)} + \log(A + B + 1) + \log(C + D + 1) - \cancel{\log(A + B + C + D + 3)} - 
+\] \[  - \log(A + B + C + 2) - \bcancel{\log(B + C + 1)} \leq 3\log(A + B + C + D + 3) - \bcancel{3\log(B + C + 1)} \]
+\[ \impliedby 1 + \log(A + B + 1) + \log(C + D + 1) + \xcancel{2 \log(B + C + 1)} \leq \cancel{3\log(A + B + C + D + 3)} + \bcancel{\log(A + B + C + 2)} \]
+\[ \impliedby 1 + \log(A + B + 1) + \log(C + D + 1) \leq 2\log(A + B + C + D + 3) \]
 
-    Что, как уже доказывалось ранее, верно.
+Что, как уже доказывалось ранее, верно.
 \end{enumerate}
 
-Пусть во время $\texttt{splay}(v_0)$ на пути до $v_0$ были вершины $v_k = root, v_{k - 1}, \ldots, v_0$. Тогда суммарное время работы $t_i$ равно сумме времён работ всех $t_\texttt{zig}, t_\texttt{zig-zig}, t_\texttt{zig-zag}$. Она, если идти снизу вверх, оценивается как $\leq 1 + 3(r(v_2) - r(v^{(0)}_0)) + 3(r(v_4) - r(v^{(1)}_0)) + \ldots + 3(r(v_k) - r(v^{(s)}_0))$, где $v^{(i)}_0$ вершина $v_0$ поднятая $i$ раз, то есть прошедшая $i$ операций. Но заметим, что, после подъёма $v^{(i)}_0$ размер её поддерева становится таким же, какой был у предыдущего корня соответствующего поддерева. Значит, эта сумма просто равна $1 + 3(r(v_2) - r(v_0)) + 3(r(v_4) - r(v_2)) + \ldots + 3(r(v_k) - r(v_{k - (\text{1 или 2})})) = 1 + 3(r(root) - r(v))$ $\blacksquare$
-\let\sz\undefined
+Пусть во время $\texttt{splay}(v_0)$ на пути до $v_0$ были вершины $root = v_k, v_{k - 1}, \ldots, v_0$. Тогда суммарное время работы $t_i$ равно сумме времён работ всех $t_\texttt{zig}, t_\texttt{zig-zig}, t_\texttt{zig-zag}$. Она, если идти снизу вверх, оценивается как $\leq 1 + 3(r(v_2) - r(v^{(0)}_0)) + 3(r(v_4) - r(v^{(1)}_0)) + \ldots + 3(r(v_k) - r(v^{(s)}_0))$, где $v^{(i)}_0$ --- это вершина $v_0$, поднятая $i$ раз, то есть прошедшая $i$ операций. Но заметим, что, после подъёма $v^{(i)}_0$ размер её поддерева становится таким же, какой был у предыдущего корня соответствующего поддерева. Значит, эта сумма просто равна $1 + 3(r(v_2) - r(v_0)) + 3(r(v_4) - r(v_2)) + \ldots + 3(r(v_k) - r(v_{k - (\text{1 или 2})})) = 1 + 3(r(root) - r(v))$ $\blacksquare$
 
 \bigskip
 
