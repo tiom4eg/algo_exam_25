@@ -26,7 +26,7 @@ Skip list: ✅
 
 Персистентность: ✅
 
-LCA/RMQ: ❌
+LCA/RMQ: ✅
 
 Link-cut дерево: ❌
 
