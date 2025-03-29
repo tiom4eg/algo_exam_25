@@ -13,10 +13,10 @@
 \newpage
 
 \foreach \i in {1, 2, ..., 100} {
-    \edef\FileName{content/\i}
-    \IfFileExists{\FileName}{
-        \input{\FileName}
+        \edef\FileName{content/\i}
+        \IfFileExists{\FileName}{
+            \input{\FileName}
+        }
     }
-}
 
 \end{document}
