@@ -1,0 +1,39 @@
+
+\section{Деление чисел длины $n$ за $O(n \log n)$}
+
+Для простоты будем считать, что основание системы счисления 10.
+Обозначим за $|a| = \lfloor \log_{10} a \rfloor + 1$ -- количество цифр в числе $a$.
+
+Пусть мы хотим разделить число $A$ на число $B$, то есть найти $Q = \left\lfloor \frac{A}{B} \right\rfloor$. Пусть $n = |A|, m = |B|$ и $m \le n$.
+Заметим, что в частном будет примерно (с точностью до $\pm 1$) $n - m$ цифр.
+Пусть $k = n + 1$ и вычислим приближённое частное $Q'$
+\begin{gather}
+    Q' = \left\lfloor \frac{A \cdot \left\lfloor \frac{10^k}{B} \right\rfloor}{10^k} \right\rfloor
+\end{gather}
+
+Число $\left\lfloor \frac{10^k}{B} \right\rfloor$ вычисляется применением метода Ньютона на функции $f(x) = \frac{10^k}{x} - B$
+\begin{gather}
+    f(x) = \frac{10^k}{x} - B \qquad f'(x) = -\frac{10^k}{x^2} \\
+    x \mapsto x - \frac{f(x)}{f'(x)} =
+    x - \frac{\frac{10^k}{x} - B}{-\frac{10^k}{x^2}} =
+    x + \frac{10^k \cdot x - B \cdot x^2}{10^k} =
+    \\
+    \frac{2x \cdot 10^k - B \cdot x^2}{10^k} \approx \left\lfloor  \frac{2x \cdot 10^k - B \cdot x^2}{10^k} \right\rfloor
+\end{gather}
+
+Все вычисления можно производить в целых числах, но нужно быть осторожным, при слишком маленьком результате итерация Ньютона может не смочь *перепрыгнуть* от одного целого числа к другому.
+Так как найденное значение частного будет лишь приближением, нужно произвести *коррекцию* ошибки на $O(1)$ (частный случай описан ниже).
+
+Оценим ошибку
+\begin{gather}
+    \left\lfloor \frac{10^k}{B} \right\rfloor = \frac{10^k}{B} - \theta \qquad 0 \le \theta < 1
+    \\
+    \implies
+    Q' = \left\lfloor \frac{A \cdot \left\lfloor \frac{10^k}{B} \right\rfloor}{10^k} \right\rfloor =
+    \left\lfloor \frac{A \cdot \left( \frac{10^k}{B} - \theta \right)}{10^k} \right\rfloor =
+    \left\lfloor \frac{A}{B} - \frac{A \cdot \theta}{10^k} \right\rfloor
+\end{gather}
+
+Так как $A < 10^k$, то *ошибка*, то есть $ \frac{A \cdot \theta}{10^k} $ не превосходит 1,
+значит приближённое частное либо равно настоящему, либо на 1 меньше. Формально $Q' \le Q \le Q + 1$.
+Вычислив $R' = A - Q' \cdot B$ и сравнив $R'$ с $B$, можно понять, какой из случаев выполнился, а значит и вычислить $Q$.

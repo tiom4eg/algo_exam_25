@@ -1,24 +1,256 @@
 \section{Быстрое преобразование Фурье}
 
+
+\subsection{Прямое преобразование}
+\label{forward_fft}
+
 Пусть $P(x) \in \mathbb{C}[x]$ -- некоторой многочлен с комплексными коэффициентами.
 Хотим вычислить значения $P(x)$ в корнях $x^n - 1$ (то есть корнях из единицы), для $n = 2^k$.
 
 Будем делать это рекурсивно. Пусть требуется вычислить значения многочлена $P(x)$ в корнях $x^{n} - z$, где $z \in \mathbb{C} \setminus \{0\}$ и $\deg P(x) < n$
 \begin{itemize}
     \item Если $n = 1$, то многочлен $P(x)$ -- константа, а единственный корень $x^n - z = x - z$ это $z$. Значит $P(z) = [x^0]P(x)$
-    \item Если $n \neq 1$, то $n = 2k$ для некоторого натурального $k$. Разложим $x^n - z$ как $x^n - z = x^{2k} - z = (x^k - \sqrt{z})(x^k + \sqrt{z})$.
-          Очевидно, что множество корней $x^{2k} - z$ это в точности объединений множеств корней $x^k - \sqrt{z}$ и $x^k + \sqrt{z}$.
+
+    \item          Если $n \neq 1$, то $n = 2k$ для некоторого натурального $k$. Разложим $x^n - z$ как
+          \begin{gather}
+              x^n - z = x^{2k} - z = (x^k - \sqrt{z})(x^k + \sqrt{z})
+          \end{gather}
+          Очевидно, что множество корней $x^{2k} - z$ это в точности объединение множеств корней $x^k - \sqrt{z}$ и $x^k + \sqrt{z}$.
           Вычислим $P_1(x) = P(x) \bmod (x^k - \sqrt{z})$ и $P_2(x) = P(x) \bmod (x^k + \sqrt{z})$ (это делается за $O(n)$).
-          Затем рекурсивно вычислим значения $P_1(x)$ в корнях $x^k - \sqrt{z}$ и значения $P_2(x)$ в корнях $x^k + \sqrt{z}$.
+          Затем рекурсивно вычислим значения $P_1(x)$ в корнях $x^k - \sqrt{z}$ и значения $P_2(x)$ в корнях $x^k + \sqrt{z}$
 \end{itemize}
 
 При реализации стоит заранее вычислить значение константы $\sqrt{z}$ для каждого рекурсивного вызова.
 Например можно предподсчитать последовательность
 $$
     w_n = \begin{cases}
-        1                                         & \text{если $n = 1$}                              \\
-        \cos \frac{\pi}{n} + i \sin \frac{\pi}{n} & \text{если $n = 2^k$}                            \\
-        w_{n - 2^k} \cdot w_{2^k}                 & \text{иначе, где $k = \lfloor \log_2 n \rfloor$} \\
+        1                                           & \text{если $n = 0$}                              \\
+        \cos \frac{\pi}{2n} + i \sin \frac{\pi}{2n} & \text{если $n = 2^k$}                            \\
+        w_{n - 2^k} \cdot w_{2^k}                   & \text{иначе, где $k = \lfloor \log_2 n \rfloor$} \\
     \end{cases}
 $$
-и в $i$-ом рекурсивном вызову на уровне $d$ использовать $\sqrt{z} = w_i$ (нумерация идёт с единицы)
+и в $i$-ом рекурсивном вызову на уровне $d$ использовать $\sqrt{z} = w_i$ (в нумерации с нуля)
+
+
+\subsection{Обратное преобразование}
+\label{inverse_fft}
+
+Для обращения преобразования достаточно обратить вышеописанный алгоритм.
+
+Рассмотрим рекурсивный вызов вышеописанного алгоритма
+\begin{itemize}
+    \item Если $n = 1$, то обращать нечего, так как никаких вычислений не выполнялось
+    \item Если $n \neq 1$, то $n = 2k$ для некоторого натурального $k$. Заметим, что значение $P(x) \bmod (x^{2k} - z)$
+          однозначно определяется значениями $P_1(x) = P(x) \bmod (x^k - \sqrt{z})$ и $P_2(x) = P(x) \bmod (x^k + \sqrt{z})$, так как многочлены $x^k - \sqrt{z}$ и $x^k + \sqrt{z}$ взаимно просты.
+
+          Вспомним формулу для явного нахождения решения системы сравнений из китайской теоремы об остатках:
+          \begin{gather}
+              \begin{cases}
+                  X \equiv A \quad (\text{mod } C) \\
+                  X \equiv B \quad (\text{mod } D) \\
+              \end{cases} \\
+              %   \implies
+              X \equiv_{CD}
+              A \cdot \text{inv}(D, C) \cdot D +
+              B \cdot \text{inv}(C, D) \cdot C
+          \end{gather}
+          где $\text{inv}(x, y)$ -- обратное к $x$ по модулю $y$
+
+          Подставим $X = P(x),\ A = P_1(x),\ B = P_2(x),\ C = x^k - \sqrt{z},\ D = x^k + \sqrt{z}$
+
+          Тогда $\text{inv}(D, C) = \text{inv}(D \bmod C, C) = \text{inv}(2\sqrt{z}, C) = \frac{1}{2\sqrt{z}}$ и $\text{inv}(C, D) = -\frac{1}{2\sqrt{z}}$
+
+          Значит
+          \begin{gather}
+              P(x) =
+              P_1(x) \cdot \frac{1}{2\sqrt{z}} \left(x^k + \sqrt{z} \right) -
+              P_2(x) \cdot \frac{1}{2\sqrt{z}} \left(x^k - \sqrt{z} \right) =
+              \\
+              \frac{1}{2} \left(
+              P_1(x) \cdot  \left(1 + x^k \cdot \frac{1}{\sqrt{z}} \right) +
+              P_2(x) \cdot  \left(1 - x^k \cdot \frac{1}{\sqrt{z}} \right)
+              \right)
+          \end{gather}
+
+          что позволяет вычислить $P(x) \bmod x^n - z$ за $O(n)$
+\end{itemize}
+
+
+\subsection{Альтернативная интерпретация}
+
+
+Вычисление $P_1(x)$ и $P_2(x)$ в \ref{forward_fft} это взятие $P(x)$ по модулю $x^k - \sqrt{z}$ и $x^k + \sqrt{z}$ соответственно.
+Пусть $w = \sqrt{z}$.
+Представим $P(x)$ в виде $P(x) = A(x) + x^k B(x)$ (то есть $A(x), B(x)$ -- младшая и старшая половина коэффициентов соответственно).
+Тогда выполнено
+
+\begin{@empty}
+    \renewcommand*{\arraystretch}{1.7}
+
+    \begin{equation}
+        \begin{bmatrix}
+            P_1(x) \\
+            P_2(x) \\
+        \end{bmatrix}
+        =
+        \begin{bmatrix}
+            1 & w  \\
+            1 & -w \\
+        \end{bmatrix}
+        \times
+        \begin{bmatrix}
+            A(x) \\
+            B(x) \\
+        \end{bmatrix}
+    \end{equation}
+\end{@empty}
+
+Значит обратное преобразование может быть вычислено по формуле
+
+
+\begin{@empty}
+    \renewcommand*{\arraystretch}{1.7}
+
+    \begin{equation}
+        \begin{bmatrix}
+            A(x) \\
+            B(x) \\
+        \end{bmatrix}
+        =
+        \begin{bmatrix}
+            1 & w  \\
+            1 & -w \\
+        \end{bmatrix}^{-1}
+        \times
+        \begin{bmatrix}
+            P_1(x) \\
+            P_2(x) \\
+        \end{bmatrix}
+        =
+        \frac{1}{2}
+        \begin{bmatrix}
+            1           & 1            \\
+            \frac{1}{w} & -\frac{1}{w} \\
+        \end{bmatrix}
+        \times
+        \begin{bmatrix}
+            P_1(x) \\
+            P_2(x) \\
+        \end{bmatrix}
+    \end{equation}
+\end{@empty}
+
+Прямое и обратное преобразование можно вычислять без использования дополнительной памяти,
+просто сразу записывая на место $A(x)$ и $B(x)$ значения $P_1(x), P_2(x)$ и наоборот.
+
+
+\subsection{Одновременное вычисление для двух многочленов из $\mathbb{R}[x]$}
+
+Даны два многочлена $A(x), B(x) \in \mathbb{R}[x]$, хотим вычислить их значения в корнях $(x^n - 1)$ за одно преобразование Фурье размера $n$ ($n$ -- степень двойки).
+Заметим, что для $P(x) \in \mathbb{R}[x]$ выполнено $P(\overline{z}) = \overline{P(z)}$.
+Пусть $P(x) = A(x) + i \cdot B(x)$.
+Пусть $w$ -- какой-то из корней $(x^n - 1)$.
+
+% Пусть
+% \begin{gather}
+%     \begin{split}
+%         A(w) = a_1 + i \cdot a_2  \qquad B(w) = b_1 + i \cdot b_2
+%         \\
+%         A(\overline{w}) = a_1 - i \cdot a_2  \qquad B(\overline{w}) = b_1 - i \cdot b_2
+%     \end{split}
+% \end{gather}
+% Тогда
+
+
+
+\begin{gather}
+    P(w) = A(w) + i \cdot B(w) \qquad P(\overline{w}) = A(\overline{w}) + i \cdot B(\overline{w})
+\end{gather}
+
+\begin{gather}
+    \begin{split}
+        P(w) + \overline{P(\overline{w})} =
+        \\
+        A(w) + i\cdot B(w) + \overline{A(\overline{w}) + i \cdot B(\overline{w})} =
+        \\
+        A(w) + i\cdot B(w) + \overline{A(\overline{w})} + \overline{i \cdot B(\overline{w})} =
+        \\
+        A(w) + i\cdot B(w) + A(w) + \overline{i} \cdot \overline{B(\overline{w})} =
+        \\
+        A(w) + i\cdot B(w) + A(w) - i \cdot B(w) =
+        \\
+        2A(w)
+    \end{split}
+    \qquad \qquad
+    \begin{split}
+        P(w) - \overline{P(\overline{w})} =
+        \\
+        A(w) + i\cdot B(w) - \overline{A(\overline{w}) - i \cdot B(\overline{w})} =
+        \\
+        A(w) + i\cdot B(w) - \overline{A(\overline{w})} - \overline{i \cdot B(\overline{w})} =
+        \\
+        A(w) + i\cdot B(w) - A(w) - \overline{i} \cdot \overline{B(\overline{w})} =
+        \\
+        A(w) + i\cdot B(w) - A(w) + i \cdot B(w) =
+        \\
+        2i \cdot B(w)
+    \end{split}
+\end{gather}
+
+
+Что позволяет зная $P(w), P(\overline{w})$ вычислить $A(w), B(w)$ за $O(1)$.
+Все корни, кроме $\pm 1$, разбиваются на пары сопряжённых.
+
+
+\subsection{Свёртка}
+
+Хотим вычислить произведение многочленов $A(x), B(x) \in \mathbb{C}[x]$.
+Пусть $k = \big\lceil \log_2 \left( \deg A(x) + \deg B(x) + 1 \right) \big\rceil$ и $n = 2^k$.
+Пусть $C(x) = A(x)B(x)$ -- искомый многочлен.
+
+Заметим, что так как $\deg C(x) = \deg A(x) + \deg B(x) < n$, то достаточно найти $C(x) \bmod (x^n - 1)$, так как $C(x) \bmod (x^n - 1) = C(x)$.
+Значение $C(x) \bmod (x^n - 1)$ однозначно определяется значениями $C(x)$ в корнях $(x^n - 1)$.
+Используя \ref{forward_fft} мы можем найти значения $A(x), B(x)$ в этим корнях, а затем и значения $C(x)$ в них, так как для любого $z \in \mathbb{C}$ выполнено $C(z) = A(z)B(z)$.
+Затем, используя \ref{inverse_fft}, мы можем восстановить $C(x) \bmod (x^n - 1)$ по значениям в корнях
+
+
+
+\subsection{Прикладывания}
+
+Пусть даны две последовательности $a_0, a_1, a_2, ..., a_{n - 1}$  и $b_0, b_1, ..., b_{m - 1}$, причём $m \le n$.
+Хотим для каждого $k$ от $0$ до $n - m$ найти сумму
+\begin{gather}
+    c_k = \sum_{i = 0}^{m - 1} a_{k + i} \cdot b_i
+\end{gather}
+
+То есть как бы *приложить* последовательность $b$ к последовательности $a$, и вычислить сумму поэлементных произведений.
+Для этого просто вычислим произведение $A(x)B(x)$, где
+\begin{gather}
+    A(x) = \sum_{i = 0}^{n - 1} x^i \cdot a_i \qquad B(x) = \sum_{i = 0}^{m - 1} x^i \cdot b_{m - 1 - i}
+\end{gather}
+То есть свёртку последовательности $a$ с развёрнутой последовательностью $b$.
+
+Заметим, что последовательные $n - m + 1$ коэффициентов, начиная с коэффициента при $x^{m - 1}$ и будет результатом.
+Причём в свёртке можно использовать $k = \lceil \log_2 n \rceil$, а не $k = \lceil \log_2 \left(n + m - 1\right) \rceil$,
+так как умножение по модулю $(x^n - 1)$ это *циклическая* свёртка, и *переполнение* не затронет результат, так как им будет затронуты не более чем $m - 2$ первых членов
+
+
+
+\subsection{Поиск по шаблону}
+
+Чтобы сделать поиск по шаблону, для каждого прикладывания вычислим
+\begin{gather}
+    \sum_{x, y} \left(x - y\right)^2
+\end{gather}
+где сумма берётся по всем парам прикладываемых к друг другу символов.
+Сумма равна $0$ тогда и только тогда, когда все символы в прикладываемых парах совпадают.
+Для вычисления суммы раскроем скобки и каждое слагаемое посчитаем отдельно (для слагаемых с $\deg_x > 0$ и $\deg_y > 0$ понадобится свёртка)
+
+Если разрешается иметь отличие на не более чем 1, то аналогичным образом вычислим
+\begin{gather}
+    \sum_{x, y} \left(x - y - 1\right)^2 \left(x - y \right)^2 \left(x - y + 1\right)^2
+\end{gather}
+
+Такая сумма равна $0$, тогда и только тогда, когда все пары символов отличаются не более, чем на 1
+
+

@@ -26,6 +26,7 @@
 \usepackage{fancyhdr}
 \usepackage{listings}
 \usepackage{pgffor}
+\usepackage{nicefrac}
 
 \fancyhf{}
 
@@ -34,10 +35,10 @@
 \usepackage[left=1.5cm,right=1.5cm,top=1.5cm,bottom=1.5cm]{geometry}
 
 \hypersetup{
-    colorlinks=true,
-    linkcolor=cyan,
-    filecolor=magenta,      
-    urlcolor=blue,
+  colorlinks=true,
+  linkcolor=cyan,
+  filecolor=magenta,
+  urlcolor=blue,
 }
 
 \newcommand{\T}[1]{ \textbf{#1} }
@@ -50,16 +51,16 @@
 \newcommand{\bb}{ \mathbb{B} }
 \newcommand*{\divby}{\mathrel{\rotatebox{90}{$\hskip-1pt.{}.{}.$}}}
 \newcommand{\I}{\displaystyle \int}
-\newcommand{\cut}{ 
+\newcommand{\cut}{
   \noindent
   \raisebox{-2.8pt}[0pt][0.75\baselineskip]
   \unskip{\tiny\dotfill}
 }
 \newcommand{\pic}[2]{
-    \begin{figure}[h]
-        \centering
-        \includegraphics[scale=#1]{#2}
-    \end{figure}
+  \begin{figure}[h]
+    \centering
+    \includegraphics[scale=#1]{#2}
+  \end{figure}
 }
 \newcommand{\Sec}[1]{ \section*{#1} }
 \renewcommand*\env@matrix[1][*\c@MaxMatrixCols c]{%

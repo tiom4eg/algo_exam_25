@@ -96,7 +96,7 @@ $x_0$ стоит брать чуть меньшим $1/a$
 \begin{center}
     \begin{tikzpicture}
         \draw[scale=4, ->] (-1.1, 0) -- (1.1, 0)  node[right] {$x$};
-        \draw[scale=4, ->] (0, -1) -- (0, 1) node[above] {$y$};
+        \draw[scale=4, ->] (0, -0.35) -- (0, 1) node[above] {$y$};
         \draw[scale=4,  domain=-1.0:1.0, smooth, variable=\x, blue] plot[samples=200] ({\x}, {\x * \x * \x * \x - 0.2}) node[right] {$x^4 - a$};
         % \draw[scale=0.5,  domain=-1:5, smooth, variable=\y, green] plot[samples=1000] ({0.8}, {\y});
     \end{tikzpicture}
