@@ -1,3 +1,189 @@
 \section{ДД/Splay}
 
-TODO (TO DIE)
+\subsection{ДД}
+Мысленно пронумеруем вершины ДД по возрастанию ключей, получим $v_1, v_2, \ldots, v_n$. Докажем, что мат. ожидание глубины конкретной вершины $v_a$ равно $O(\log n)$. Очевидно, глубина равна количеству предков (не обязательно непосредственных). Пусть индикатор $I_b$ равен 1, если $v_b$ предок $v_a$, и 0 иначе. Чтобы $v_b$ была предком $v_a$, нужно, чтобы приоритеты у вершин $v_i$ для $i \in [a, b)$ были меньше приоритета $v_b$, ведь они обязаны находиться вместе с $v_a$ в поддереве $v_b$, а ДД --- куча по приоритетам. Значит, $E(I_b)$, то есть вероятность того, что $v_b$ предок $v_a$, не больше вероятности того, что среди приоритетов для $v_i, i \in [a, b]$ приоритет у $v_b$ наибольший. Вероятность последнего, очевидно, равна $\frac{1}{|a - b| + 1}$. Значит,
+\[
+E(\text{глубина }v_a) = \sum_{b = 1}^n E(I_b) \leq \sum_{b = 1}^n \frac{1}{|a - b| + 1} \leq 2 \sum_{s = 1}^{n} \frac{1}{s} = O(\log n)
+\]
+
+Так как все операции работают с ДД за $O(\text{глубина какой-то вершины})$, получаем, что хотелось.
+
+\subsection{Splay}
+
+Повороты выглядят так:
+\tikzset{
+    node/.style = {circle, draw, minimum size=8mm},
+    subtree/.style = {font=\small, inner sep=1pt},
+    edge/.style = {draw, -latex}
+}
+
+\begin{figure}[h!]
+\centering
+\begin{tikzpicture}[scale=0.8, every node/.style={transform shape}]
+
+\begin{scope}[local bounding box=before]
+    \node[node] (v) at (0,0) {$x$};
+    \node[node] (x) at (-1,-1) {$v$};
+    \node[subtree] (A) at (-1.5,-2) {$A$};
+    \node[subtree] (B) at (-0.5,-2) {$B$};
+    \node[subtree] (C) at (1,-1) {$C$};
+    
+    \draw[edge] (v) -- (x);
+    \draw[edge] (x) -- (A);
+    \draw[edge] (x) -- (B);
+    \draw[edge] (v) -- (C);
+\end{scope}
+
+\draw[->, thick] (2,-1) -- node[above] {\texttt{zig}} ++(2,0);
+
+\begin{scope}[xshift=6cm, local bounding box=after]
+  \node[node] (x) at (0,0) {$v$};
+  \node[subtree] (A) at (-1,-1) {$A$};
+  \node[node] (v) at (1,-1) {$x$};
+  \node[subtree] (B) at (0.5,-2) {$B$};
+  \node[subtree] (C) at (1.5,-2) {$C$};
+  
+  \draw[edge] (x) -- (A);
+  \draw[edge] (x) -- (v);
+  \draw[edge] (v) -- (B);
+  \draw[edge] (v) -- (C);
+\end{scope}
+
+\end{tikzpicture}
+\caption{Операция \texttt{zig}: одиночный поворот}
+\end{figure}
+
+\begin{figure}[h!]
+\centering
+\begin{tikzpicture}[scale=0.8, every node/.style={transform shape}]
+
+\begin{scope}[local bounding box=before]
+    \node[node] (v) at (0,0) {$x$};
+    \node[node] (p) at (-1,-1) {$y$};
+    \node[node] (g) at (-2,-2) {$v$};
+    \node[subtree] (A) at (-2.5,-3) {$A$};
+    \node[subtree] (B) at (-1.5,-3) {$B$};
+    \node[subtree] (C) at (-0.5,-2) {$C$};
+    \node[subtree] (D) at (1,-1) {$D$};
+    
+    \draw[edge] (v) -- (p);
+    \draw[edge] (p) -- (g);
+    \draw[edge] (g) -- (A);
+    \draw[edge] (g) -- (B);
+    \draw[edge] (p) -- (C);
+    \draw[edge] (v) -- (D);
+\end{scope}
+
+\draw[->, thick] (2,-1.5) -- node[above] {\texttt{zig-zig}} ++(2,0);
+
+\begin{scope}[xshift=6cm, local bounding box=after]
+    \node[node] (g) at (0,0) {$v$};
+    \node[subtree] (A) at (-1,-1) {$A$};
+    \node[node] (p) at (1,-1) {$y$};
+    \node[subtree] (B) at (0.5,-2) {$B$};
+    \node[node] (v) at (1.5,-2) {$x$};
+    \node[subtree] (C) at (1,-3) {$C$};
+    \node[subtree] (D) at (2,-3) {$D$};
+    
+    \draw[edge] (g) -- (A);
+    \draw[edge] (g) -- (p);
+    \draw[edge] (p) -- (B);
+    \draw[edge] (p) -- (v);
+    \draw[edge] (v) -- (C);
+    \draw[edge] (v) -- (D);
+\end{scope}
+
+\end{tikzpicture}
+\caption{Операция \texttt{zig-zig}: двойной поворот (одинаковое направление)}
+\end{figure}
+
+\begin{figure}[h!]
+\centering
+\begin{tikzpicture}[scale=0.8, every node/.style={transform shape}]
+
+\begin{scope}[local bounding box=before]
+    \node[node] (g) at (0,0) {$x$};
+    \node[subtree] (A) at (1,-1) {$D$};
+    \node[node] (p) at (-1,-1) {$y$};
+    \node[node] (v) at (-0.5,-2) {$v$};
+    \node[subtree] (B) at (0,-3) {$C$};
+    \node[subtree] (C) at (-1,-3) {$B$};
+    \node[subtree] (D) at (-1.5,-2) {$A$};
+    
+    \draw[edge] (g) -- (A);
+    \draw[edge] (g) -- (p);
+    \draw[edge] (p) -- (v);
+    \draw[edge] (v) -- (B);
+    \draw[edge] (v) -- (C);
+    \draw[edge] (p) -- (D);
+\end{scope}
+
+\draw[->, thick] (2,-1.5) -- node[above] {\texttt{zig-zag}} ++(2,0);
+
+\begin{scope}[xshift=6cm, local bounding box=after]
+    \node[node] (v) at (0,0) {$v$};
+    \node[node] (g) at (-1,-1) {$y$};
+    \node[subtree] (A) at (-1.5,-2) {$A$};
+    \node[subtree] (B) at (-0.5,-2) {$B$};
+    \node[node] (p) at (1,-1) {$x$};
+    \node[subtree] (C) at (0.5,-2) {$C$};
+    \node[subtree] (D) at (1.5,-2) {$D$};
+    
+    \draw[edge] (v) -- (g);
+    \draw[edge] (g) -- (A);
+    \draw[edge] (g) -- (B);
+    \draw[edge] (v) -- (p);
+    \draw[edge] (p) -- (C);
+    \draw[edge] (p) -- (D);
+\end{scope}
+
+\end{tikzpicture}
+\caption{Операция \texttt{zig-zag}: двойной поворот (разное направление)}
+\end{figure}
+
+
+Докажем, что амортизированное время работы \texttt{splay}($v$) равно $O(\log n)$. Сделаем это методом потенциалов. Пусть $r(v) = \log \operatorname{sz}(v)$, где $\operatorname{sz}(v)$ --- размер поддерева вершины $v$ (здесь и везде далее под $\log$ понимается двоичный логарифм). Потенциал $\Phi = \sum\limits_{v} r(v)$. Очевидно, что $0 \leq \Phi \leq n \log n$.
+
+\begin{statement}
+$t_i + \Delta \Phi \leq 1 + 3(r(root) - r(v))$, где $t_i$ --- время работы.
+\end{statement}
+\underline{Доказательство}: сначала отдельно оценим изменение потенциала при выполнении одного \texttt{zig}, \texttt{zig-zig} или \texttt{zig-zag}
+\begin{enumerate}
+\item \texttt{zig}. Пусть без ограничения общности в $v$ спустились влево (как на рисунке). Хотим доказать, что $t_\texttt{zig} + \Delta \Phi \leq 1 + 3(r(x) - r(v))$. Повороты делаются за $O(1)$, поэтому будем считать $t_\texttt{zig} = 1$. Значит, нужно нужно доказать, что 
+\[ 1 + \cancel{\log(A + B + C + 2)} + \log(B + C + 1) - \cancel{\log(A + B + C + 2)} - \bcancel{\log(A + B + 1)} \leq 
+\] \[ \leq 1 + 3 \log(A + B + C + 2) - \bcancel{3\log(A + B + 1)} \]
+\[ \impliedby \log(B + C + 1) + 2 \log(A + B + 1) \leq 3 \log(A + B + C + 2) \]
+
+
+А последнее, очевидно, верно.
+
+\item \texttt{zig-zig}. Пусть без ограничения общности в $v$ спустились влево-влево (как на рисунке). Хотим доказать, что $t_\texttt{zig-zig} + \Delta \Phi \leq 3(r(x) - r(v))$, то есть
+\[ 1 + \cancel{\log(A + B + C + D + 3)} + \log(B + C + D + 2) + \log(C + D + 1) - \cancel{\log(A + B + C + D + 3)} - \]
+\[ -\log(A + B + C + 2) - \bcancel{\log(A + B + 1)} \leq 3\log(A + B + C + D + 3) - \bcancel{3\log(A + B + 1)} \]
+\[ \impliedby 1 + \cancel{\log(B + C + D + 2)} + \log(C + D + 1) + \bcancel{2 \log(A + B + 1)} \leq \cancel{3\log(A + B + C + D + 3)} + \bcancel{\log(A + B + C + 2)}\]
+\[ \impliedby 1 + \log(C + D + 1) + \log(A + B + 1) \leq 2\log(A + B + C + D + 3) \]
+
+Пусть $a = C + D + 1, b = A + B + 1$. Докажем, что $1 + \log a + \log b \leq 2\log (a + b)$, из этого будет следовать требуемое. 
+\[ 1 + \log a + \log b \leq 2 \log(a + b) \]
+\[ 1 \leq \log((a + b)^2) - \log ab \]
+\[ 1 \leq \log \frac{a^2 + 2ab + b^2}{ab} \]
+\[ 1 \leq \log (2 + ...) \]
+
+Последнее верно, так как логирфм двоичный и $... \geq 0$.
+
+\item \texttt{zig-zag}. Пусть без ограничения общности в $v$ спустились влево-вправо (как на рисунке). Хотим доказать, что $t_\texttt{zig-zag} + \Delta \Phi \leq 3(r(x) - r(v))$, то есть
+\[ 1 + \cancel{\log(A + B + C + D + 3)} + \log(A + B + 1) + \log(C + D + 1) - \cancel{\log(A + B + C + D + 3)} - 
+\] \[  - \log(A + B + C + 2) - \bcancel{\log(B + C + 1)} \leq 3\log(A + B + C + D + 3) - \bcancel{3\log(B + C + 1)} \]
+\[ \impliedby 1 + \log(A + B + 1) + \log(C + D + 1) + \xcancel{2 \log(B + C + 1)} \leq \cancel{3\log(A + B + C + D + 3)} + \bcancel{\log(A + B + C + 2)} \]
+\[ \impliedby 1 + \log(A + B + 1) + \log(C + D + 1) \leq 2\log(A + B + C + D + 3) \]
+
+Что, как уже доказывалось ранее, верно.
+\end{enumerate}
+
+Пусть во время $\texttt{splay}(v_0)$ на пути до $v_0$ были вершины $root = v_k, v_{k - 1}, \ldots, v_0$. Тогда суммарное время работы $t_i$ равно сумме времён работ всех $t_\texttt{zig}, t_\texttt{zig-zig}, t_\texttt{zig-zag}$. Она, если идти снизу вверх, оценивается как $\leq 1 + 3(r(v_2) - r(v^{(0)}_0)) + 3(r(v_4) - r(v^{(1)}_0)) + \ldots + 3(r(v_k) - r(v^{(s)}_0))$, где $v^{(i)}_0$ --- это вершина $v_0$, поднятая $i$ раз, то есть прошедшая $i$ операций. Но заметим, что, после подъёма $v^{(i)}_0$ размер её поддерева становится таким же, какой был у предыдущего корня соответствующего поддерева. Значит, эта сумма просто равна $1 + 3(r(v_2) - r(v_0)) + 3(r(v_4) - r(v_2)) + \ldots + 3(r(v_k) - r(v_{k - (\text{1 или 2})})) = 1 + 3(r(root) - r(v))$ $\blacksquare$
+
+\bigskip
+
+Так как $1 + 3(r(root) - r(v)) = O(\log n)$, по методу потенциалов получаем, что амортизированное время работы \texttt{splay}($v$) равно $O(\log n)$.
+
+Теперь хотим научить делать что-то более содержательное. Так, допустим, хотим сделать \texttt{find}/\texttt{lower\_bound} по ключу. Честно спустимся по дереву как по бинарному дереву поиска, а потом от конечной вершины запустим \texttt{splay}. Время, затраченное на спуск, будет равно времени, затраченному на \texttt{splay}, которое амортизированно $O(\log n)$. Научимся делать \texttt{split} от вершины $v$. Просто делаем $\texttt{splay}(v)$, левое поддерево $v$ и $v$ вместе с правым поддеревом --- результат \texttt{split}, от такого потенциал только уменьшится. Для того, чтобы делать \texttt{split} по значению, сначала делаем \texttt{lower\_bound}, потом \texttt{split}. Если надо делать \texttt{merge}, можно для первого (т.е. меньшего по ключам) дерева поднять самую правую вершину, а затем к ней подвесить второе дерево как правого сына. От этого потенциал увеличится на не более чем $\log n$, что допустимо для метода потенциалов. \texttt{insert}/\texttt{erase} очевидно делаются через все операции выше, также изменяют потенциал на не более чем $\log_2(n)$.

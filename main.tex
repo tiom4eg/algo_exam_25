@@ -2,7 +2,7 @@
 \usepackage{style}
 
 \title{Экзамен по АиСД 2024/25}
-\author{@tiom4eg, @alekseyka2006 $\dots$}
+\author{@tiom4eg, @alekseyka2006, @piskarev\_i $\dots$}
 % \date{24.03.2025}
 
 \begin{document}
@@ -13,10 +13,10 @@
 \newpage
 
 \foreach \i in {1, 2, ..., 100} {
-        \edef\FileName{content/\i}%
-        \IfFileExists{\FileName}{
-            \input{\FileName}
-        }
+    \edef\FileName{content/\i}
+    \IfFileExists{\FileName}{
+        \input{\FileName}
     }
+}
 
 \end{document}
